@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="php,laravel,dingo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Message BagMessage Bag数据结构12345678910[  &apos;key1&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],  &apos;key2&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],] Message Bag读取接口format: “:key的消息是:message” 返回一个array，和mes">
+<meta name="keywords" content="php,laravel,dingo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Laravel MessageBag与Validation">
+<meta property="og:url" content="http://yixiang.pw/2016/09/28/Laravel-MessageBag/index.html">
+<meta property="og:site_name" content="yixiang">
+<meta property="og:description" content="Message BagMessage Bag数据结构12345678910[  &apos;key1&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],  &apos;key2&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],] Message Bag读取接口format: “:key的消息是:message” 返回一个array，和mes">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-07-22T10:21:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Laravel MessageBag与Validation">
+<meta name="twitter:description" content="Message BagMessage Bag数据结构12345678910[  &apos;key1&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],  &apos;key2&apos; =&amp;gt; [    &apos;message 1&apos;,    &apos;message 2&apos;,  ],] Message Bag读取接口format: “:key的消息是:message” 返回一个array，和mes">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yixiang.pw/2016/09/28/Laravel-MessageBag/"/>
+
+
+
+
+
+  <title>Laravel MessageBag与Validation | yixiang</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yixiang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yixiang.pw/2016/09/28/Laravel-MessageBag/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周意翔">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yixiang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Laravel MessageBag与Validation</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-28T09:30:56+08:00">
+                2016-09-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发/" itemprop="url" rel="index">
+                    <span itemprop="name">开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Message-Bag"><a href="#Message-Bag" class="headerlink" title="Message Bag"></a>Message Bag</h1><h2 id="Message-Bag数据结构"><a href="#Message-Bag数据结构" class="headerlink" title="Message Bag数据结构"></a>Message Bag数据结构</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[</div><div class="line">  <span class="string">'key1'</span> =&gt; [</div><div class="line">    <span class="string">'message 1'</span>,</div><div class="line">    <span class="string">'message 2'</span>,</div><div class="line">  ],</div><div class="line">  <span class="string">'key2'</span> =&gt; [</div><div class="line">    <span class="string">'message 1'</span>,</div><div class="line">    <span class="string">'message 2'</span>,</div><div class="line">  ],</div><div class="line">]</div></pre></td></tr></table></figure>
+<h2 id="Message-Bag读取接口"><a href="#Message-Bag读取接口" class="headerlink" title="Message Bag读取接口"></a>Message Bag读取接口</h2><p>format: “:key的消息是:message”</p>
+<p>返回一个array，和message bag内部存储结构相同。消息按照format参数格式化。format默认格式是“:message”，也就是不变。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[</div><div class="line">  <span class="string">'key1'</span> =&gt; [</div><div class="line">    <span class="string">'key1的消息是message 1'</span>,</div><div class="line">    ...</div><div class="line">  ],</div><div class="line">  ...</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<h1 id="Validation"><a href="#Validation" class="headerlink" title="Validation"></a>Validation</h1><p>Laravel的验证框架有下面几个构件：</p>
+<ul>
+<li>MessageBag 用于存储验证失败信息</li>
+<li>Rule 验证规则</li>
+<li>Message Rule验证失败的错误消息</li>
+<li>Data 验证的数据</li>
+</ul>
+<h1 id="Validator-MessageBag生成过程"><a href="#Validator-MessageBag生成过程" class="headerlink" title="Validator MessageBag生成过程"></a>Validator MessageBag生成过程</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$validator = app(Factory::class)-&gt;make([</div><div class="line">  <span class="string">'attr1'</span> =&gt; <span class="string">'some value'</span>,</div><div class="line">  <span class="string">'attr2'</span> =&gt; <span class="string">'some value'</span>,</div><div class="line">], [</div><div class="line">  <span class="string">'rule1'</span> =&gt; <span class="string">':attribute不满足:rule1Replacer'</span>,</div><div class="line">  <span class="string">'rule2'</span> =&gt; <span class="string">':attribute不满足:rule2Replacer'</span>,</div><div class="line">], [</div><div class="line">  <span class="string">'attr1'</span> =&gt; <span class="string">'rule1|rule2|rule3'</span>,</div><div class="line">  <span class="string">'attr2'</span> =&gt; <span class="string">'rule1|rule2|rule3'</span>,</div><div class="line">]);</div></pre></td></tr></table></figure>
+<p>MessageBag的format只需要/支持:key和:message两个占位符，Validator自己根据规则扩展了占位符，在Validator内部自己负责替换。<br>Validator内部的MessageBag以校验的数据attribute为key。当某个属性的某条验证规则（例如: “min:6”）失败时，会提取出该条验证规则对应的message，然后替换掉message中的占位符（例如:attribute, :min），将替换后的消息存放到MessageBag中。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[</div><div class="line">  <span class="string">'attribute1'</span> =&gt; [</div><div class="line">    <span class="string">'key1的消息是message 1'</span>,</div><div class="line">    <span class="string">'key1的消息是message 2'</span>,</div><div class="line">  ],</div><div class="line">  <span class="string">'attribute1'</span> =&gt; [</div><div class="line">    <span class="string">'key2的消息是message 1'</span>,</div><div class="line">    <span class="string">'key2的消息是message 2'</span>,</div><div class="line">  ],</div><div class="line">]</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/laravel/" rel="tag"># laravel</a>
+          
+            <a href="/tags/dingo/" rel="tag"># dingo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/25/遇到一个Laravel-Dingo-API坑/" rel="next" title="Laravel + Dingo API 遇到一个小坑">
+                <i class="fa fa-chevron-left"></i> Laravel + Dingo API 遇到一个小坑
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/28/Linux-Init-System/" rel="prev" title="Linux Init System">
+                Linux Init System <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="周意翔" />
+          
+            <p class="site-author-name" itemprop="name">周意翔</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Message-Bag"><span class="nav-number">1.</span> <span class="nav-text">Message Bag</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Message-Bag数据结构"><span class="nav-number">1.1.</span> <span class="nav-text">Message Bag数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Message-Bag读取接口"><span class="nav-number">1.2.</span> <span class="nav-text">Message Bag读取接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Validation"><span class="nav-number">2.</span> <span class="nav-text">Validation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Validator-MessageBag生成过程"><span class="nav-number">3.</span> <span class="nav-text">Validator MessageBag生成过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周意翔</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
