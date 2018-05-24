@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="科学上网," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="用L2TP/IPsec VPN服务访问外网查资料，老有几个麻烦问题：  在系统偏好设置中勾选“Send all traffic over VPN connection”之后，所有流量走VPN连接，一方面国内部分网站速度比较慢，另外访问有一些比较重要的网站时，心里也有些担心。 我使用的VPN服务，每次连接上之后都会动态地配置DNS为Google的服务器，因为国内DNS污染的问题，这个设置虽然必要，但">
+<meta name="keywords" content="科学上网">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSX VPN设置">
+<meta property="og:url" content="http://yixiang.pw/2014/10/02/OSX-VPN-Setup/index.html">
+<meta property="og:site_name" content="yixiang">
+<meta property="og:description" content="用L2TP/IPsec VPN服务访问外网查资料，老有几个麻烦问题：  在系统偏好设置中勾选“Send all traffic over VPN connection”之后，所有流量走VPN连接，一方面国内部分网站速度比较慢，另外访问有一些比较重要的网站时，心里也有些担心。 我使用的VPN服务，每次连接上之后都会动态地配置DNS为Google的服务器，因为国内DNS污染的问题，这个设置虽然必要，但">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-07-22T10:21:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OSX VPN设置">
+<meta name="twitter:description" content="用L2TP/IPsec VPN服务访问外网查资料，老有几个麻烦问题：  在系统偏好设置中勾选“Send all traffic over VPN connection”之后，所有流量走VPN连接，一方面国内部分网站速度比较慢，另外访问有一些比较重要的网站时，心里也有些担心。 我使用的VPN服务，每次连接上之后都会动态地配置DNS为Google的服务器，因为国内DNS污染的问题，这个设置虽然必要，但">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yixiang.pw/2014/10/02/OSX-VPN-Setup/"/>
+
+
+
+
+
+  <title>OSX VPN设置 | yixiang</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yixiang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yixiang.pw/2014/10/02/OSX-VPN-Setup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周意翔">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yixiang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">OSX VPN设置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-10-02T15:37:09+08:00">
+                2014-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发/" itemprop="url" rel="index">
+                    <span itemprop="name">开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/10/02/OSX-VPN-Setup/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/10/02/OSX-VPN-Setup/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>用L2TP/IPsec VPN服务访问外网查资料，老有几个麻烦问题：</p>
+<ol>
+<li>在系统偏好设置中勾选“Send all traffic over VPN connection”之后，所有流量走VPN连接，一方面国内部分网站速度比较慢，另外访问有一些比较重要的网站时，心里也有些担心。</li>
+<li>我使用的VPN服务，每次连接上之后都会动态地配置DNS为Google的服务器，因为国内DNS污染的问题，这个设置虽然必要，但有时也需要修改。通过系统偏好手动修的设置，总会在断开VPN之后丢失，每次修改很麻烦。</li>
+<li>我用的联通网络，动态配置的DNS很垃圾，通过系统偏好设置的DNS，在连接过VPN之后也会丢失，重新配置成那个垃圾DNS。</li>
+</ol>
+<p>在Linux和一些Unix系统下，通过设置/etc/resolv.conf能够对DNS配置，但OSX上这个文件是由系统动态生成的，OSX的系统配置文件可以通过scutil进行管理，配置文件位置为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/Library/Preferences/SystemConfiguration/preferences.plist</div></pre></td></tr></table></figure>
+<p>根据配置文件中的配置项来看，每个接口都有一个配置项，位于ROOT/NetworkServices下面。每个Network Service都有一个以UUID为key的配置项，每个Network Service都有一个UserDefinedName。在我的电脑上，可以看到这些用户定义名称包括：Wi-Fi，Bluetooth PAN, VPN (L2TP over IPsec), … 参考这些配置的命名，这里将VPN的配置称为VPN Network Service配置，将电脑上默认的连接配置称为Primary Network Service配置。</p>
+<h1 id="VPN-Network-Service国内外流量自动切换"><a href="#VPN-Network-Service国内外流量自动切换" class="headerlink" title="VPN Network Service国内外流量自动切换"></a>VPN Network Service国内外流量自动切换</h1><p>OSX在建立ppp连接之后，会调用/etc/ppp/ip-up脚本，断开ppp连接之后会调用/etc/ppp/ip-down脚本，Linux也有同样地机制。因为L2TP/IPsec的隧道里面走ppp协议，因此这种类型的VPN连接建立之后，也会调用相应的脚本。我们可以利用这个脚本做一些处理，自动地让国内的流量走原来的连接，国外的流量走VPN。 我们只需要修改路由表，让IP包根据不同的目的地址，选择是否走VPN接口即可。这个可以利用开源工具chnroutes根据这个地址的数据生成接生成ip-{up,down}两个脚本。可以看到脚本里面会自动添加针对中国IP地址的路由项，让访问中国IP地址的IP包绕过VPN。 将这两个脚本放到/etc/ppp/文件夹下即可。 在VPN连接前后，可以通过执行下面的命令，查看路由表的变动。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> netstat -rn</div></pre></td></tr></table></figure>
+<h1 id="自动修改VPN-Network-Service-DNS"><a href="#自动修改VPN-Network-Service-DNS" class="headerlink" title="自动修改VPN Network Service DNS"></a>自动修改VPN Network Service DNS</h1><p>正常情况下，大家应该用不上这个。VPN的DNS虽然可以直接通过“系统偏好设置”进行修改，但每次重新连接VPN之后修改便丢失了，很麻烦。可以利用ip-up脚本在每次连接VPN后自动配置DNS。 基本办法可以参考这篇文章和Comments的内容，主要利用osx的scutil工具进行配置。我对文章中的脚本做了简单的修改，如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">SERVICES=$(scutil --nc list | grep 'Connected' | awk '&#123;print $3&#125;')</div><div class="line"> for SERVICE in $SERVICES</div><div class="line"> do</div><div class="line"> scutil &lt;&lt;&lt; "</div><div class="line"> d.init</div><div class="line"> get State:/Network/Service/$SERVICE/DNS</div><div class="line"> d.add ServerAddresses * 8.8.8.8 114.114.114.114</div><div class="line"> set State:/Network/Service/$SERVICE/DNS</div><div class="line"> quit</div><div class="line"> "</div><div class="line"> done</div></pre></td></tr></table></figure>
+<p>将其添加到ip-up脚本底部即可。</p>
+<h1 id="修改Primary-Network-Service-DNS"><a href="#修改Primary-Network-Service-DNS" class="headerlink" title="修改Primary Network Service DNS"></a>修改Primary Network Service DNS</h1><p>Primary Network Service按说应该和VPN没什么关系，但我在“系统偏好设置”中设置的DNS，总在使用VPN后丢失，因此又可以在ip-up和ip-down里面添加下面的脚本，保证在使用VPN前后，Primary Network Service的DNS总是自己想要的值，对于获取Primary Service的ID，参考了<a href="http://hints.macworld.com/article.php?story=20050621051643993" target="_blank" rel="external">这篇文章</a>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span>修改PIRMARY Network Service DNS</div><div class="line"> PRIMARY_SERVICE=$(scutil &lt;&lt;&lt; "</div><div class="line"> open</div><div class="line"> get State:/Network/Global/IPv4</div><div class="line"> d.show</div><div class="line"> quit</div><div class="line"> " | grep 'PrimaryService' | awk '&#123;print $3&#125;')</div><div class="line"> </div><div class="line"> scutil &lt;&lt;&lt; "</div><div class="line"> d.init</div><div class="line"> get State:/Network/Service/$PRIMARY_SERVICE/DNS</div><div class="line"> d.add ServerAddresses * 114.114.114.114 114.114.115.115</div><div class="line"> set State:/Network/Service/$PRIMARY_SERVICE/DNS</div><div class="line"> quit</div><div class="line"> "</div></pre></td></tr></table></figure>
+<p>需要注意的是，如果在ip-up脚本中使用了设置VPN DNS的脚本，需要将VPN DNS修改的脚本放在修改Primary Service DNS的脚本之后执行。  </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/科学上网/" rel="tag"># 科学上网</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2009/04/12/十五/" rel="next" title="十五">
+                <i class="fa fa-chevron-left"></i> 十五
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/19/挪威的森林/" rel="prev" title="挪威的森林">
+                挪威的森林 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="周意翔" />
+          
+            <p class="site-author-name" itemprop="name">周意翔</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VPN-Network-Service国内外流量自动切换"><span class="nav-number">1.</span> <span class="nav-text">VPN Network Service国内外流量自动切换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自动修改VPN-Network-Service-DNS"><span class="nav-number">2.</span> <span class="nav-text">自动修改VPN Network Service DNS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#修改Primary-Network-Service-DNS"><span class="nav-number">3.</span> <span class="nav-text">修改Primary Network Service DNS</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周意翔</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yixiang.pw/2014/10/02/OSX-VPN-Setup/';
+          this.page.identifier = '2014/10/02/OSX-VPN-Setup/';
+          this.page.title = 'OSX VPN设置';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>

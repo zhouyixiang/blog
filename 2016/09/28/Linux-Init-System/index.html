@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,init,centos," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="今天安装软件，整理了一些关于init system的资料。 Linux Init System Operating system service management (Wikipedia) 不同操作系统(Linux, Unix, macOS, Android, …)采用的系统服务管理技术。  init (Wikipedia)  Research Unix-style/BSD-style 系统初始">
+<meta name="keywords" content="linux,init,centos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Init System">
+<meta property="og:url" content="http://yixiang.pw/2016/09/28/Linux-Init-System/index.html">
+<meta property="og:site_name" content="yixiang">
+<meta property="og:description" content="今天安装软件，整理了一些关于init system的资料。 Linux Init System Operating system service management (Wikipedia) 不同操作系统(Linux, Unix, macOS, Android, …)采用的系统服务管理技术。  init (Wikipedia)  Research Unix-style/BSD-style 系统初始">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-07-22T10:21:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux Init System">
+<meta name="twitter:description" content="今天安装软件，整理了一些关于init system的资料。 Linux Init System Operating system service management (Wikipedia) 不同操作系统(Linux, Unix, macOS, Android, …)采用的系统服务管理技术。  init (Wikipedia)  Research Unix-style/BSD-style 系统初始">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yixiang.pw/2016/09/28/Linux-Init-System/"/>
+
+
+
+
+
+  <title>Linux Init System | yixiang</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yixiang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yixiang.pw/2016/09/28/Linux-Init-System/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周意翔">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yixiang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux Init System</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-28T09:30:56+08:00">
+                2016-09-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发/" itemprop="url" rel="index">
+                    <span itemprop="name">开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/28/Linux-Init-System/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/09/28/Linux-Init-System/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天安装软件，整理了一些关于init system的资料。</p>
+<h1 id="Linux-Init-System"><a href="#Linux-Init-System" class="headerlink" title="Linux Init System"></a>Linux Init System</h1><ul>
+<li><p><a href="https://en.wikipedia.org/wiki/Operating_system_service_management" target="_blank" rel="external">Operating system service management (Wikipedia)</a></p>
+<p>不同操作系统(Linux, Unix, macOS, Android, …)采用的系统服务管理技术。</p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Init" target="_blank" rel="external">init (Wikipedia)</a></p>
+<ul>
+<li><p>Research Unix-style/BSD-style</p>
+<p>系统初始化时执行脚本/etc/rc控制服务启动。支持site-specific /etc/rc.local以免修改/etc/rc。后来添加模块化支持，允许在/etc/rc.d文件夹中添加脚本。/etc/rc.d中的脚本如果有启动顺序要求，在脚本内用dependency tags显式指明，系统用rcorder脚本确定它们的排序。</p>
+</li>
+<li><p>SysV-style</p>
+<p>添加runlevels概念，系统在不同runlevels间切换时，执行启动或结束各个服务管理脚本。默认runlevels在/etc/inittab中指定。</p>
+</li>
+</ul>
+</li>
+<li><p><a href="https://bbs.archlinux.org/viewtopic.php?id=47087" target="_blank" rel="external">BSD-style vs SysV-style</a></p>
+<p>BSD:</p>
+<ul>
+<li>Startup scripts are generally kept in /etc/rc.d/</li>
+<li>A small number of files (/etc/rc.sysinit, /etc/rc.local, etc.) control the startup process</li>
+</ul>
+<p>Sys V:</p>
+<ul>
+<li>Startup scripts are generally kept in /etc/init.d/</li>
+<li>There are also a number of /etc/rcX.d/ directories – one for every run-level (i.e. X represents 0 through 6 and S, so, 8 altogether)</li>
+<li>The contents of each /etc/rcX.d/ directory is a collection of soft-links to scripts in /etc/init.d/</li>
+<li>Each soft-link in a specific /etc/rcX.d/ directory is named so it will execute in the order of it’s alphabetical relationship to the other soft-links</li>
+</ul>
+<p>可以看到BSD和SysV都可以将服务启动脚本放到/etc/rc.d文件夹下。SysV将脚本软连接到不同runlevel对应的/etc/rcX.d/文件中，启动顺序通过软连接文件名确定，而BSD的启动顺序在脚本中指定。</p>
+<blockquote>
+<p>Example (ls -1 /etc/rc3.d/):</p>
+<p>S05vbesave  &lt;– execs first</p>
+<p>S10acpid</p>
+<p>S10sysklogd</p>
+<p>S10xserver-xorg-input-wacom</p>
+<p>S11klogd</p>
+<p>S12dbus</p>
+<p>S12hal</p>
+<p>…</p>
+<p>S98usplash</p>
+<p>S99acpi-support</p>
+<p>S99laptop-mode</p>
+<p>S99rc.local</p>
+<p>S99rmnologin  &lt;– execs last</p>
+<p>This example was actually 39 lines long – and just represents run-level #3.  In addition, /etc/rc.local executes after the target run-level is finished doing init.<br>So, given Sys V’s complex hierarchy – spanning 8 run-levels by an average of N-number of daemons – you can probably guess why so many people rave about Arch’s BSD-style init schema ;-)</p>
+</blockquote>
+</li>
+<li><p><a href="http://centos-vn.blogspot.jp/2014/06/daemon-showdown-upstart-vs-runit-vs.html" target="_blank" rel="external">Upstart vs. Runit vs. Systemd vs. Circus vs. God</a></p>
+<p>Where Upstart uses ptrace to watch the forking, systemd runs each daemon in a control group (requires Linux 2.6.24 or newer) from which it can not escape with any amount of forking. This allows easy resource limiting , both for forking and non-forking daemons, since control groups were made for this sort of thing.</p>
+</li>
+<li><p><a href="http://searchenterpriselinux.techtarget.com/tip/RHEL-6-ditches-System-V-init-for-Upstart-What-Linux-admins-need-to-know" target="_blank" rel="external">RHEL 6 ditches System V init for Upstart</a></p>
+</li>
+<li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/chap-Managing_Services_with_systemd.html" target="_blank" rel="external">RHEL 7 Systemd </a></li>
+<li><a href="http://linuxcommand.org/man_pages/chkconfig8.html" target="_blank" rel="external">chkconfig</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/init/" rel="tag"># init</a>
+          
+            <a href="/tags/centos/" rel="tag"># centos</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/28/Laravel-MessageBag/" rel="next" title="Laravel MessageBag与Validation">
+                <i class="fa fa-chevron-left"></i> Laravel MessageBag与Validation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/14/Learn-Words-While-Coding/" rel="prev" title="代码中的单词">
+                代码中的单词 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="周意翔" />
+          
+            <p class="site-author-name" itemprop="name">周意翔</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Init-System"><span class="nav-number">1.</span> <span class="nav-text">Linux Init System</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周意翔</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yixiang.pw/2016/09/28/Linux-Init-System/';
+          this.page.identifier = '2016/09/28/Linux-Init-System/';
+          this.page.title = 'Linux Init System';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
