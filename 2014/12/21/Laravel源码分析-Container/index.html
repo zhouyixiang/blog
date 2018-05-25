@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="php,laravel," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="作为SOLID基本原则之一，DI也被Laravel采纳，用于解耦框架内大量的组件。关于依赖注入，可以阅读维基百科上的介绍和示例，这是理解Laravel框容器的基础，按照wikipedia上的介绍，DI涉及到四个基本组件：  Service Object Client Object depending on the service; Interface the client uses to comm">
+<meta name="keywords" content="php,laravel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Laravel源码分析 - Container">
+<meta property="og:url" content="http://yixiang.pw/2014/12/21/Laravel源码分析-Container/index.html">
+<meta property="og:site_name" content="yixiang">
+<meta property="og:description" content="作为SOLID基本原则之一，DI也被Laravel采纳，用于解耦框架内大量的组件。关于依赖注入，可以阅读维基百科上的介绍和示例，这是理解Laravel框容器的基础，按照wikipedia上的介绍，DI涉及到四个基本组件：  Service Object Client Object depending on the service; Interface the client uses to comm">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-07-22T10:21:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Laravel源码分析 - Container">
+<meta name="twitter:description" content="作为SOLID基本原则之一，DI也被Laravel采纳，用于解耦框架内大量的组件。关于依赖注入，可以阅读维基百科上的介绍和示例，这是理解Laravel框容器的基础，按照wikipedia上的介绍，DI涉及到四个基本组件：  Service Object Client Object depending on the service; Interface the client uses to comm">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yixiang.pw/2014/12/21/Laravel源码分析-Container/"/>
+
+
+
+
+
+  <title>Laravel源码分析 - Container | yixiang</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yixiang</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yixiang.pw/2014/12/21/Laravel源码分析-Container/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周意翔">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yixiang">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Laravel源码分析 - Container</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-12-21T21:26:55+08:00">
+                2014-12-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发/" itemprop="url" rel="index">
+                    <span itemprop="name">开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/12/21/Laravel源码分析-Container/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/12/21/Laravel源码分析-Container/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>作为SOLID基本原则之一，DI也被Laravel采纳，用于解耦框架内大量的组件。关于依赖注入，可以阅读<a href="https://en.wikipedia.org/wiki/Dependency_injection" target="_blank" rel="external">维基百科上的介绍和示例</a>，这是理解Laravel框容器的基础，按照wikipedia上的介绍，DI涉及到四个基本组件：</p>
+<ul>
+<li>Service Object</li>
+<li>Client Object depending on the service;</li>
+<li>Interface the client uses to communicate with the service;</li>
+<li>Injector (assembler, provider, container, factory, or spring)</li>
+</ul>
+<p>Laravel框架组件管理的基础是DI，本文基于Laravel 4.2的Container（也就是上面的Injector）实现进行分析。 Laravel的Container实现位于src\Illuminate\Container\Container.php文件中，可以看到文件中有很多高频使用的变量命名，包括：</p>
+<ul>
+<li>abstract,</li>
+<li>concrete,</li>
+<li>alias</li>
+</ul>
+<p>这些变量名反映了Laravel容器里面的一些基本概念，下面对它们做一些说明。了解这些概念之后，容器的源代码理解起来会简单一些。</p>
+<h1 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h1><p>组件对应DI中的Service Object，是向外部提供某种服务的对象。容器负责Service Object的产生，Service Object由Service定义，Laravel框架中有很多提供不同功能的Service例子，如提供认证服务的Service，提供Cache功能的Service，提供Mail功能的Service等等。</p>
+<p>这些Service的功能由一些类或者接口定义（例如Auth Service的定义在Illuminate\Auth\AuthManager中），他们被注册后，容器负责其对象的实例化。注册接口由容器的bind函数定义，可以参看后面“Service Object产生”一节。</p>
+<h1 id="Service名-abstract"><a href="#Service名-abstract" class="headerlink" title="Service名 (abstract)"></a>Service名 (abstract)</h1><p>容器里的Service都可以通过名字访问。例如，要产生一个提供认证服务的Service Object，可以调用Container的make方法，传入字符串’auth’，让容器给我们返回一个认证组件的实例。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$authServiceObject = app()-&gt;make(‘auth’)</div></pre></td></tr></table></figure>
+<p>Laravel框架本身提供了很多Service，Laravel对这些Service进行了命名，例如: ‘auth’, ‘cache’, ‘config’, ‘cookie’, 等等。</p>
+<p>Laravel本身按照模块化的方式对代码进行组织，每个模块都提供了一些Service，可以通过查看各个模块中的ServiceProvider代码看注册了哪些Service，及其对应的Service名。另外，通过src\Illuminate\Foundation\Application.php文件中的registerCoreContainerAliases方法，也可以看到一个service名字列表。 </p>
+<p>对于Service命名的原则，通过代码可以看到，Laravel选择的是简洁明了，像’auth’这样的名字。由于Laravel容器还可以根据类型产生Service Object，例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$authServiceObject = app()-&gt;make(<span class="string">'Illuminate\Auth\AuthManager'</span>)</div></pre></td></tr></table></figure>
+<p>因此容器提供了通过多个名字引用Service Object的机制，这就是别名。</p>
+<h1 id="Service别名-alias"><a href="#Service别名-alias" class="headerlink" title="Service别名 (alias)"></a>Service别名 (alias)</h1><p>Laravel中，每个Service可以有多个名字，其中一个被称为abstract名，其余的则称为alias。容器通过abstract名知道如何产生Service Object。对于alias名称，容器首先查找alias对应的abstract，然后找到产生Service Object的方式。 </p>
+<p>Container中有一个$aliases字段，包含了alias到abstract名字的映射关系。容器使用者可以通过下面的函数注册别名。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">alias</span><span class="params">($abstract, $alias)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">$this</span>-&gt;aliases[$alias] = $abstract;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="Service-Object的产生-concrete"><a href="#Service-Object的产生-concrete" class="headerlink" title="Service Object的产生 (concrete)"></a>Service Object的产生 (concrete)</h1><p>调用者向容器注册Service的同时提供了产生Service Object的办法。最基本的注册接口如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">bind</span><span class="params">($abstract, $concrete = null, $shared = false)</span></span></div></pre></td></tr></table></figure>
+<p>其中abstract是Service名字，$concrete指定了Service Object的产生方式，可以是一个Closure对象，string或者null对象，对于后两种，在Container内部最终也会转换成产生Service Object的Closure。 注册之后，容器使用者就可以通过make接口产生Service Object，接口签名如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">make</span><span class="params">($abstract, $parameters = array<span class="params">()</span>)</span></span></div></pre></td></tr></table></figure>
+<p>make函数的参数名字为abstract，其值可以是Service名或者别名，在make函数内部都会转换成为Service名(abstract)，然后找到其对应的Service Object产生方式生成Object。 make函数调用了一个函数getAlias：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">make</span><span class="params">($abstract, $parameters = array<span class="params">()</span>)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    $abstract = <span class="keyword">$this</span>-&gt;getAlias($abstract);</div></pre></td></tr></table></figure>
+<p>这个getAlias函数命名很让人很容易产生混淆，因为其功能实际上是通过aliases数组查询alias对应的abstract名。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getAlias</span><span class="params">($abstract)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;aliases[$abstract]) ? <span class="keyword">$this</span>-&gt;aliases[$abstract] : $abstract;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/laravel/" rel="tag"># laravel</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/26/判断/" rel="next" title="判断">
+                <i class="fa fa-chevron-left"></i> 判断
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/01/CSS-Visual-Fomatting-Model/" rel="prev" title="CSS Visual Formatting Model">
+                CSS Visual Formatting Model <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="周意翔" />
+          
+            <p class="site-author-name" itemprop="name">周意翔</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Service"><span class="nav-number">1.</span> <span class="nav-text">Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Service名-abstract"><span class="nav-number">2.</span> <span class="nav-text">Service名 (abstract)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Service别名-alias"><span class="nav-number">3.</span> <span class="nav-text">Service别名 (alias)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Service-Object的产生-concrete"><span class="nav-number">4.</span> <span class="nav-text">Service Object的产生 (concrete)</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周意翔</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://yixiang.pw/2014/12/21/Laravel源码分析-Container/';
+          this.page.identifier = '2014/12/21/Laravel源码分析-Container/';
+          this.page.title = 'Laravel源码分析 - Container';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
